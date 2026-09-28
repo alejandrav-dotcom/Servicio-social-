@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- PWA & Meta Etiquetas -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#8457ff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ServicioSocial">
+<link rel="apple-touch-icon" href="./icon-192.png">
+
+<title>Control de Servicio Social</title>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:Arial, Helvetica, sans-serif;background:linear-gradient(135deg,#ffe4f0,#e8e0ff,#dff6ff);min-height:100vh;color:#333;}
+header{background:linear-gradient(135deg,#ff4f9a,#8457ff,#32b9ff);color:white;text-align:center;padding:35px 20px;box-shadow:0 5px 20px rgba(0,0,0,.15);}
+header h1{font-size:38px;margin-bottom:10px;}
+header p{font-size:17px;}
+.container{width:95%;max-width:1200px;margin:30px auto;}
+.resumen{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:25px;}
+.tarjeta{background:white;padding:22px;border-radius:20px;text-align:center;box-shadow:0 8px 25px rgba(90,60,130,.15);}
+.tarjeta .icono{font-size:35px;}
+.tarjeta h2{margin:8px 0;color:#6947d9;font-size:28px;}
+.tarjeta p{color:#777;}
+.formulario{background:white;border-radius:22px;padding:25px;box-shadow:0 8px 25px rgba(90,60,130,.15);margin-bottom:25px;}
+.formulario h2{color:#7146db;margin-bottom:20px;}
+.form-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;}
+.campo label{display:block;font-weight:bold;margin-bottom:7px;color:#555;}
+.campo input{width:100%;padding:13px;border:2px solid #e5def8;border-radius:12px;font-size:15px;outline:none;}
+.campo input:focus{border-color:#8457ff;}
+.botones{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px;}
+button{border:none;padding:13px 20px;border-radius:12px;font-weight:bold;cursor:pointer;transition:.2s;}
+button:hover{transform:translateY(-2px);}
+.btn-agregar{background:linear-gradient(135deg,#ff4f9a,#8457ff);color:white;}
+.btn-exportar{background:#e7e0ff;color:#6046c4;}
+.btn-borrar{background:#ffe4ec;color:#d62d68;}
+.tabla-contenedor{background:white;padding:25px;border-radius:22px;box-shadow:0 8px 25px rgba(90,60,130,.15);overflow-x:auto;}
+.tabla-contenedor h2{color:#7146db;margin-bottom:20px;}
+table{width:100%;border-collapse:collapse;min-width:800px;}
+thead{background:linear-gradient(90deg,#7650e8,#a05cff);color:white;}
+th{padding:14px;text-align:center;}
+td{padding:12px;text-align:center;border-bottom:1px solid #eee;}
+tbody tr:nth-child(even){background:#faf8ff;}
+tbody tr:hover{background:#f1edff;}
+.horas{background:#e4fff5;color:#15976c;padding:6px 10px;border-radius:20px;font-weight:bold;}
+.btn-eliminar{background:#ffe4eb;color:#d52d65;padding:8px 12px;}
+.firma{min-width:150px;border-bottom:1px solid #555;height:30px;}
+.meta{background:white;margin-top:25px;padding:25px;border-radius:22px;box-shadow:0 8px 25px rgba(90,60,130,.15);}
+.meta-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.meta input{width:100px;padding:7px;border:2px solid #ddd;border-radius:8px;}
+.barra{width:100%;height:15px;background:#eae8f2;border-radius:20px;overflow:hidden;}
+.progreso{height:100%;width:0%;background:linear-gradient(90deg,#ff4f9a,#8457ff,#32b9ff);border-radius:20px;transition:.4s;}
+footer{text-align:center;padding:30px;color:#777;}
+@media(max-width:900px){.resumen,.form-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:600px){header h1{font-size:28px;}.resumen{grid-template-columns:1fr 1fr;}.form-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<header>
+    <h1>🌈 Mi Servicio Social</h1>
+    <p>Control y contabilización de horas de servicio social</p>
+</header>
+<div class="container">
+<section class="resumen">
+    <div class="tarjeta"><div class="icono">⏱️</div><h2 id="totalHoras">0 h</h2><p>Horas acumuladas</p></div>
+    <div class="tarjeta"><div class="icono">📅</div><h2 id="totalDias">0</h2><p>Días registrados</p></div>
+    <div class="tarjeta"><div class="icono">🎯</div><h2 id="horasRestantes">480 h</h2><p>Horas restantes</p></div>
+    <div class="tarjeta"><div class="icono">📊</div><h2 id="porcentaje">0%</h2><p>Avance</p></div>
+</section>
+<section class="formulario">
+    <h2>✨ Registrar nueva jornada</h2>
+    <div class="form-grid">
+        <div class="campo"><label>📅 Fecha</label><input type="date" id="fecha"></div>
+        <div class="campo"><label>🕐 Hora de llegada</label><input type="time" id="horaLlegada"></div>
+        <div class="campo"><label>🕐 Hora de salida</label><input type="time" id="horaSalida"></div>
+        <div class="campo"><label>✍️ Firma</label><input type="text" id="firma" placeholder="Nombre / firma"></div>
+    </div>
+    <div class="botones">
+        <button class="btn-agregar" onclick="agregarRegistro()">➕ Agregar jornada</button>
+        <button class="btn-exportar" onclick="exportarCSV()">📥 Exportar registros</button>
+        <button class="btn-borrar" onclick="borrarTodo()">🗑️ Borrar todo</button>
+    </div>
+</section>
+<section class="tabla-contenedor">
+    <h2>📋 Registro de servicio social</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>📅 Fecha</th>
+                <th>🕐 Hora de llegada</th>
+                <th>🕐 Hora de salida</th>
+                <th>⏱️ Tiempo total</th>
+                <th>✍️ Firma</th>
+                <th>⚙️ Acción</th>
+            </tr>
+        </thead>
+        <tbody id="tablaRegistros"></tbody>
+    </table>
+</section>
+<section class="meta">
+    <div class="meta-header">
+        <strong>🎓 Meta de servicio social</strong>
+        <label><input type="number" id="metaHoras" value="480" min="1" onchange="guardarMeta(); actualizar();"> horas</label>
+    </div>
+    <div class="barra"><div class="progreso" id="barraProgreso"></div></div>
+</section>
+</div>
+<footer>💜 Control de Servicio Social | Registro personal de horas</footer>
+
+<script>
+let registros = JSON.parse(localStorage.getItem("registrosServicioSocial")) || [];
+let metaGuardada = localStorage.getItem("metaServicioSocial");
+if (metaGuardada) document.getElementById("metaHoras").value = metaGuardada;
+
+function calcularHoras(inicio, fin){
+    let [h1,m1] = inicio.split(":").map(Number);
+    let [h2,m2] = fin.split(":").map(Number);
+    let minutosInicio = h1 * 60 + m1;
+    let minutosFin = h2 * 60 + m2;
+    if(minutosFin < minutosInicio) minutosFin += 24 * 60;
+    return (minutosFin - minutosInicio) / 60;
+}
+
+function agregarRegistro(){
+    const fecha = document.getElementById("fecha").value;
+    const llegada = document.getElementById("horaLlegada").value;
+    const salida = document.getElementById("horaSalida").value;
+    const firma = document.getElementById("firma").value;
+
+    if(!fecha || !llegada || !salida){
+        alert("⚠️ Completa la fecha, hora de llegada y hora de salida.");
+        return;
+    }
+
+    const horas = calcularHoras(llegada,salida);
+    if(horas <= 0){
+        alert("⚠️ La hora de salida debe ser diferente.");
+        return;
+    }
+
+    registros.push({ fecha, llegada, salida, horas, firma: firma || "Pendiente" });
+    guardar();
+    limpiarFormulario();
+    actualizar();
+}
+
+function guardar(){ localStorage.setItem("registrosServicioSocial", JSON.stringify(registros)); }
+function guardarMeta(){ localStorage.setItem("metaServicioSocial", document.getElementById("metaHoras").value); }
+
+function actualizar(){
+    const tabla = document.getElementById("tablaRegistros");
+    tabla.innerHTML = "";
+    let total = 0;
+
+    registros.forEach((registro,index)=>{
+        total += registro.horas;
+        const fila = document.createElement("tr");
+        fila.innerHTML = `
+            <td>${registro.fecha}</td>
+            <td>${registro.llegada}</td>
+            <td>${registro.salida}</td>
+            <td><span class="horas">${formatearHoras(registro.horas)}</span></td>
+            <td><div class="firma">${registro.firma}</div></td>
+            <td><button class="btn-eliminar" onclick="eliminarRegistro(${index})">🗑️ Eliminar</button></td>
+        `;
+        tabla.appendChild(fila);
+    });
+
+    const meta = Number(document.getElementById("metaHoras").value) || 480;
+    const porcentaje = Math.min((total / meta) * 100, 100);
+
+    document.getElementById("totalHoras").textContent = formatearHoras(total);
+    document.getElementById("totalDias").textContent = registros.length;
+    document.getElementById("horasRestantes").textContent = formatearHoras(Math.max(meta-total,0));
+    document.getElementById("porcentaje").textContent = Math.round(porcentaje) + "%";
+    document.getElementById("barraProgreso").style.width = porcentaje + "%";
+}
+
+function formatearHoras(horas){
+    const h = Math.floor(horas);
+    const m = Math.round((horas - h) * 60);
+    return m === 0 ? h + " h" : h + " h " + m + " min";
+}
+
+function eliminarRegistro(index){
+    if(confirm("¿Quieres eliminar esta jornada?")){
+        registros.splice(index,1);
+        guardar();
+        actualizar();
+    }
+}
+
+function borrarTodo(){
+    if(registros.length === 0) return alert("No hay registros para borrar.");
+    if(confirm("⚠️ ¿Seguro que quieres eliminar TODOS los registros?")){
+        registros = [];
+        guardar();
+        actualizar();
+    }
+}
+
+function limpiarFormulario(){
+    document.getElementById("fecha").value = "";
+    document.getElementById("horaLlegada").value = "";
+    document.getElementById("horaSalida").value = "";
+    document.getElementById("firma").value = "";
+}
+
+function exportarCSV(){
+    if(registros.length === 0) return alert("⚠️ No hay registros para exportar.");
+    let contenido = "Fecha,Hora de llegada,Hora de salida,Tiempo total,Firma\n";
+    registros.forEach(r => { contenido += `${r.fecha},${r.llegada},${r.salida},${r.horas.toFixed(2)} horas,${r.firma}\n`; });
+    const blob = new Blob([contenido], { type: "text/csv;charset=utf-8;" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "registro_servicio_social.csv";
+    a.click();
+}
+
+actualizar();
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js');
+  });
+}
+</script>
+</body>
+</html>

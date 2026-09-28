@@ -1,0 +1,21 @@
+{
+  "name": "Control de Servicio Social",
+  "short_name": "ServicioSocial",
+  "description": "Control y contabilización de horas de servicio social",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffe4f0",
+  "theme_color": "#8457ff",
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
